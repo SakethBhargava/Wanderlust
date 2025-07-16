@@ -2,14 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
-const PORT = 3000;
-const MONGO_URL = process.env.CONNECTION_URL;
 const path = require('path');
 const methodOverride = require('method-override')
 const ejsMate = require('ejs-mate');
 const Listing = require('./models/listing');
 
 // Database Connection
+const PORT = 3000;
+const MONGO_URL = process.env.CONNECTION_URL;
+
 async function main() {
   await mongoose.connect(MONGO_URL);
 }
