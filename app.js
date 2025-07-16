@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
@@ -7,7 +8,6 @@ const path = require('path');
 const methodOverride = require('method-override')
 const ejsMate = require('ejs-mate');
 const Listing = require('./models/listing');
-require('dotenv').config();
 
 // Database Connection
 async function main() {
