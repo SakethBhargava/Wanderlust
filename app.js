@@ -1,11 +1,13 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
 const app = express();
-const path = require('path');
-const methodOverride = require('method-override')
-const ejsMate = require('ejs-mate');
-const Listing = require('./models/listing');
+const path = require("path");
+const methodOverride = require("method-override");
+const ejsMate = require("ejs-mate");
+const Listing = require("./models/listing");
+const wrapAsync = require("./utils/wrapAsync");
+const ExpressError = require("./utils/ExpressError");
 
 // Database Connection
 const PORT = 3000;
@@ -16,25 +18,25 @@ async function main() {
 }
 
 main()
-.then(() => {
-    console.log('Database Connected');
+  .then(() => {
+    console.log("Database Connected");
   })
   .catch((err) => {
     console.error(err);
   });
-  
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.static(path.join(__dirname, "/public")));
 app.use(express.json());
 app.engine("ejs", ejsMate);
 app.use(methodOverride("_method"));
-  
+
 //Test Route
-app.get('/', async (req, res) => {
-    const allListings = await Listing.find({});
-    res.render("listings/index.ejs", { allListings });
+app.get("/", async (req, res) => {
+  const allListings = await Listing.find({});
+  res.render("listings/index.ejs", { allListings });
 });
 
 // app.get("/TestListing", async (req, res) => {
@@ -56,47 +58,57 @@ app.get('/', async (req, res) => {
 app.get("/listings", async (req, res) => {
   const allListings = await Listing.find({});
   res.render("listings/index.ejs", { allListings });
-})
+});
 
 //NEW ROUTE
-app.get('/listings/new', async (req, res) => {
-  res.render('listings/new.ejs')
-})
+app.get("/listings/new", async (req, res) => {
+  res.render("listings/new.ejs");
+});
 
 //SHOW ROUTE
-app.get("/listings/:id", async (req, res) =>{
-  let {id} = req.params;
+app.get("/listings/:id", async (req, res) => {
+  let { id } = req.params;
   const listing = await Listing.findById(id);
   res.render("listings/show.ejs", { listing });
-})
+});
 
 //CREATE ROUTE
-app.post('/listings', async (req, res) => {
-  const newListing = new Listing(req.body.listing);
-  await newListing.save();
-  res.redirect('/listings');
-})
+app.post(
+  "/listings",
+  wrapAsync(async (req, res, next) => {
+    const newListing = new Listing(req.body.listing);
+    await newListing.save();
+    res.redirect("/listings");
+  })
+);
 
 //EDIT ROUTE
-app.get('/listings/:id/edit', async (req, res) => {
-  let {id} = req.params;
+app.get("/listings/:id/edit", async (req, res) => {
+  let { id } = req.params;
   const listing = await Listing.findById(id);
-  res.render('listings/edit.ejs', {listing})
-})
+  res.render("listings/edit.ejs", { listing });
+});
 
 //UPDATE ROUTE
-app.put('/listings/:id', async (req, res) => {
-  let {id} = req.params;
-  await Listing.findByIdAndUpdate(id, {...req.body.listing});
-  res.redirect(`/listings/${id}`)
-})
+app.put("/listings/:id", async (req, res) => {
+  let { id } = req.params;
+  await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+  res.redirect(`/listings/${id}`);
+});
 
 //DELETE ROUTE
-app.delete('/listings/:id', async (req, res) => {
-  let {id} = req.params;
+app.delete("/listings/:id", async (req, res) => {
+  let { id } = req.params;
   let deletedListing = await Listing.findByIdAndDelete(id);
-  res.redirect("/listings")
-})
+  res.redirect("/listings");
+});
+
+//Error handler
+app.use((err, req, res, next) => {
+  let { statusCode, message } = err;
+  res.status(statusCode).send(message);
+  res.send("Something went wrong!");
+});
 
 // Server Connection
 app.listen(PORT, () => {
