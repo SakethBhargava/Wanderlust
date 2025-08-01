@@ -108,11 +108,17 @@ body{
 }
 
 .show-img{
-    height: 30vh;
+    height: 40vh;
 }
 
 /* buttons */
 
 .btns{
     display: flex;
+    gap: 1rem;
+}
+
+#map{
+    height: 400px;
+    width: 60vw;
 }

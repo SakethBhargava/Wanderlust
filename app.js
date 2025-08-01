@@ -1,4 +1,6 @@
-require("dotenv").config();
+if(process.env.NODE_ENV !== "production") {
+  require('@dotenvx/dotenvx').config()
+}
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -6,14 +8,16 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
-const Listing = require("./models/listing.js");
-const wrapAsync = require("./utils/wrapAsync.js");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./models/user.js");
 
 // Importing Routes
 const listingsRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
 
 // Database Connection
 const PORT = 3000;
@@ -48,24 +52,37 @@ const sessionOptions = {
   } 
 };
 
-
 app.use(session(sessionOptions));
 app.use(flash());
+
+//Passport Configuration / Initialization
+app.use(passport.initialize()); // Initialize Passport
+app.use(passport.session()); // Persistent login sessions
+passport.use(new LocalStrategy(User.authenticate())); // Use local strategy for authentication
+
+passport.serializeUser(User.serializeUser()); // Serialize user for session
+passport.deserializeUser(User.deserializeUser()); // Deserialize user from session
 
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
+  res.locals.currUser = req.user; // Make current user available in templates. because we cannot access objects directly in EJS templates
   next();
 });
 
-// Routes
+// app.get("/demo", async (req, res) =>{
+//   let fakeUser = new User({
+//     email: "student@gmail.com", 
+//     username: "deltastudent",
+//   });
+//   let registeredUser = await User.register(fakeUser, "student123"); // Registering a demo user
+//   res.send(registeredUser);
+// });
+
+// Express Routes
 app.use("/listings", listingsRouter);
 app.use("/listings/:id/reviews", reviewRouter);
-
-app.get("/", wrapAsync(async (req, res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index.ejs", { allListings });
-}));
+app.use("/", userRouter);
 
 // 404 Not Found Middleware
 app.all("*", (req, res, next) => {

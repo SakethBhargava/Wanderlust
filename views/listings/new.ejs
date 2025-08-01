@@ -2,12 +2,12 @@
 <div class="row mt-3">
     <div class="col-8 offset-2">
         <h3>Create a new Listing</h3>
-        <form method="POST" action="/listings" novalidate class="needs-validation">
-        <div class="mb-3">
-                <label for="title" class="form-label">Title:</label>
-                <input name="listing[title]" type="text" placeholder="Add a catchy title" class="form-control" required>
-                <div class="valid-feedback">Title looks good!</div>
-                <div class="invalid-feedback">Title is required</div>
+        <form method="POST" action="/listings" novalidate class="needs-validation" enctype="multipart/form-data">
+            <div class="mb-3">
+                    <label for="title" class="form-label">Title:</label>
+                    <input name="listing[title]" type="text" placeholder="Add a catchy title" class="form-control" required>
+                    <div class="valid-feedback">Title looks good!</div>
+                    <div class="invalid-feedback">Title is required</div>
             </div>
             <div class="mb-3">
                 <label for="description" class="form-label">Description:</label>
@@ -15,12 +15,20 @@
                 <div class="invalid-feedback">Description is required</div>
             </div>
 
-            <div class="mb-3">
-                <label for="image" class="form-label">Image:</label>
-                <input name="listing[image]" type="text" placeholder="Enter Image URL/Link" class="form-control">
-                <div class="invalid-feedback">Image URL is required</div>
+            <div class="row">
+                <div class="mb-3 col-md-7">
+                    <label for="image" class="form-label">Image:</label>
+                    <input name="listing[image_url]" type="text" placeholder="Enter Image URL/Link or upload image" class="form-control">
+                    <div class="invalid-feedback">Image URL is required</div>
+                </div>
+
+                <div class="mb-3 col-md-5">
+                    <label for="image" class="form-label">Upload Image:</label>
+                    <input name="listing[image_upload]" type="file" class="form-control" required>
+                    <div class="invalid-feedback">Image is required</div>
+                </div>
             </div>
-            
+                
             <div class="row">
                 <div class="mb-3 col-md-4">
                     <label for="price" class="form-label">Price:</label>
@@ -28,22 +36,20 @@
 
                     <div class="invalid-feedback">Please enter a valid price</div>
                 </div>
-
+                
                 <div class="mb-3 col-md-8">
                     <label for="country" class="form-label">Country:</label>
                     <input name="listing[country]" type="text" placeholder="eg. India" class="form-control" required>
-
                     <div class="invalid-feedback">Country name is must</div>
-                </div>
-            </div>
-            
-        <div class="mb-3">
+                </div>     
+            </div>   
+            <div class="mb-3">
                 <label for="location" class="form-label">Location:</label>
                 <input name="listing[location]" type="text" placeholder="eg. Bangalore" class="form-control" required>
                 <div class="invalid-feedback">Location is required</div>
             </div>
-        <button class="btn btn-dark add-btn mt-3">add</button>
-        <br></br>
+            <button class="btn btn-dark add-btn mt-3">add</button>
+            <br></br>
         </form>
     </div>
 </div>
