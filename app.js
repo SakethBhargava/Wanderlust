@@ -8,6 +8,8 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const ExpressError = require("./utils/ExpressError.js");
+const Listing = require("./models/listing.js");
+const wrapAsync = require("./utils/wrapAsync.js");
 const session = require("express-session");
 const flash = require("connect-flash");
 const passport = require("passport");
@@ -98,6 +100,11 @@ app.use((req, res, next) => {
 app.use("/listings", listingsRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/", userRouter);
+
+app.get("/", wrapAsync(async (req, res) => {
+  let allListings = await Listing.find({});
+  res.render("listings/index.ejs", { allListings });
+}));
 
 // 404 Not Found Middleware
 app.all("*", (req, res, next) => {
